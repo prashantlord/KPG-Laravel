@@ -1,59 +1,62 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# KPG-Laravel - Khalti Payment Gateway Integration
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This branch focuses on integrating the Khalti Payment Gateway into a Laravel 12 application.
 
-## About Laravel
+## Integrated Packages
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### PHP Packages (via Composer)
+- **[neputertech/khalti](https://github.com/neputertech/khalti)**: A Laravel wrapper for the Khalti Payment Gateway API.
+- **laravel/framework**: Version ^12.0.
+- **laravel/tinker**: For interactive shell access.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Frontend & Build Tools (via NPM)
+- **Tailwind CSS v4**: Utility-first CSS framework.
+- **Vite v7**: Modern frontend build tool.
+- **Axios**: Promise-based HTTP client for the browser.
+- **Concurrently**: Run multiple commands concurrently.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Commands & Setup
 
-## Learning Laravel
+A custom setup command has been added to `composer.json` to streamline the project initialization.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Project Setup
+To set up the project from scratch, run:
+```bash
+composer setup
+```
+This command performs the following actions:
+1. Installs composer dependencies.
+2. Creates a `.env` file from `.env.example` (if it doesn't exist).
+3. Generates the application key.
+4. Runs database migrations.
+5. Installs NPM dependencies.
+6. Builds frontend assets.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Development Server
+To start the development environment (Laravel server, Vite, and Pail):
+```bash
+npm run dev
+```
+*(Note: The `dev` script in `composer.json` uses `concurrently` to manage these processes.)*
 
-## Laravel Sponsors
+## Implementation Details
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Payment Flow
+1. **Initiate Payment**: The user enters the cost in `welcome.blade.php` and submits the form to `/pay`.
+2. **Khalti Redirect**: `PaymentController@pay` calls the Khalti API and redirects the user to the payment gateway.
+3. **Verification**: After a successful payment, Khalti redirects the user back to `/pay/verify`.
+4. **Lookup**: `PaymentController@verify` performs a lookup using the `pidx` to confirm the payment status.
 
-### Premium Partners
+### File Reference
+- **Routes**: [routes/web.php](file:///home/aurora/Documents/Project/KPG-Larave/routes/web.php) - Defines `/pay` and `/pay/verify`.
+- **Controller**: [app/Http/Controllers/PaymentController.php](file:///home/aurora/Documents/Project/KPG-Larave/app/Http/Controllers/PaymentController.php) - Handles the payment logic.
+- **Form View**: [resources/views/welcome.blade.php](file:///home/aurora/Documents/Project/KPG-Larave/resources/views/welcome.blade.php) - Contains the payment initiation form.
+- **Status View**: [resources/views/index.blade.php](file:///home/aurora/Documents/Project/KPG-Larave/resources/views/index.blade.php) - Displays the payment success message.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Environment Variables
+Ensure the following keys are configured in your `.env` file for Khalti to function:
+```env
+KHALTI_PUBLIC_KEY=your_public_key
+KHALTI_SECRET_KEY=your_secret_key
+KHALTI_BASE_URL=https://a.khalti.com/api/v2/ # or sandbox URL
+```
